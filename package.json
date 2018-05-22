@@ -1,0 +1,20 @@
+{
+  "name": "videoplayer",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "electron-rebuild": "electron-rebuild -w opencv4nodejs",
+    "start": "set PATH=C:\\dev\\opencv\\build\\x64\\vc15\\bin;%PATH% && electron main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^2.0.1",
+    "electron-rebuild": "^1.7.3"
+  },
+  "dependencies": {
+    "opencv4nodejs": "^4.5.0"
+  }
+}
