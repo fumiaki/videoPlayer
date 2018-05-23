@@ -5,12 +5,12 @@
     <title>Video Player Electron</title>
   </head>
   <body>
-    <div style="max-width: 640px">
-      <canvas id="mainCanvas"></canvas>
+    <div style="max-width: 400px">
+      <canvas id="mainCanvas" onclick="vp.playing=!vp.playing;"></canvas>
     </div>
 
     <div>
-      <button id="btnPlay" onclick="play();">Play</button>
+      <button id="btnPlay" onclick="vp.playing=!vp.playing;">Play</button>
     </div>
 
     <div>
@@ -18,76 +18,27 @@
       <div id="labelFrameNumber">FN :0<div>
     </div>
 
+    <script src="app.js"></script>
     <script>
-      var cv = require('opencv4nodejs');
-      var cm = require('./cvModule.js');
-      console.log(cm)
-
+    var vp;
+    window.addEventListener("load", function() {
       var path = require('path');
       var fs = require('fs');
+      var cm = require('./cvModule.js');
 
       var VIDEO_FILE = path.resolve('asset', 'vtest.avi');
-
-      var cap = new cv.VideoCapture(VIDEO_FILE);
       var cvs = document.getElementById('mainCanvas');
-
-      function renderImage(img, canvas) {
-        var matRGBA = img.channels === 1 ? img.cvtColor(cv.COLOR_GRAY2RGBA) : img.cvtColor(cv.COLOR_BGR2RGBA);
-
-        canvas.height = img.rows;
-        canvas.width = img.cols;
-        var imgData = new ImageData(
-          new Uint8ClampedArray(matRGBA.getData()),
-          img.cols,
-          img.rows
-        );
-        var ctx = canvas.getContext('2d');
-        ctx.putImageData(imgData, 0, 0);
-      }
-
-      let frame, dst;
-      function play() {
-        frame = cap.read();
-        if (frame.empty) {
-          cap.reset();
-          frame = cap.read();
-        }
-
-        dst = processImage(frame)
-        renderImage(dst, cvs);
-
-        updateStatus()
-
-        setTimeout(play, 1)
-      }
-
-      let time1 = performance.now();
-      let time2, timeInterval;
-      function updateStatus() {
-        time2 = performance.now();
-        timeInterval = time2-time1;
-        time1 = time2;
-
-        labelFramerate.innerHTML = "FPS: " + (1000/timeInterval)
-        labelFrameNumber.innerHTML = "FN : " + cap.get(cv.CAP_PROP_POS_FRAMES )
-      }
-
       var cvModules = [
         new cm.CvtColor({color:cm.CvtColor.RGB2GRAY}),
         new cm.GaussianBlur({ksize:[9,9]}),
-        new cm.Canny({}),
+        new cm.Canny({minVal: 80, maxVal: 20,}),
+        new cm.HoughLinesP({}),
       ]
-      var ksize = new cv.Size(9,9)
-      function processImage(img) {
-        cvModules.forEach(m => {img = m.process(img)})
-        //img = img.cvtColor(cv.COLOR_RGB2GRAY);
-        //img = img.medianBlur(19);
-        //img = img.gaussianBlur (ksize, 0);
-        //img = img.sobel(cv.CV_8U, 0, 1);
-        //img = img.canny(40, 20);
 
-        return img;
-      }
+      vp = new VideoPlayer(VIDEO_FILE, cvs, cvModules);
+      vp.play();
+      vp.playing = true
+    })
 
     </script>
   </body>
