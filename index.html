@@ -15,7 +15,8 @@
 
     <div>
       <div id="labelFramerate">FPS:000</div>
-      <div id="labelFrameNumber">FN :0<div>
+      <div id="labelFrameNumber">FN :0</div>
+      <div id="labelFilterList">(no filter)</div>
     </div>
 
     <script src="app.js"></script>
@@ -31,8 +32,13 @@
       var cvModules = [
         new cm.CvtColor({color:cm.CvtColor.RGB2GRAY}),
         new cm.GaussianBlur({ksize:[9,9]}),
+        new cm.Dilate({},enabled=false),
+        new cm.Erode({},enabled=false),
+        new cm.MorphologyEx({kernel: new cv.Mat(15, 15, cv.CV_8U, 1), morphType: cv.MORPH_OPEN}),
         new cm.Canny({minVal: 80, maxVal: 20,}),
-        new cm.HoughLinesP({}),
+        new cm.HoughLines({},enabled=false),
+        new cm.HoughLinesP({},enabled=false),
+        new cm.HoughCircles({},enabled=false),
       ]
 
       vp = new VideoPlayer(VIDEO_FILE, cvs, cvModules);

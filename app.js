@@ -6,7 +6,7 @@ class VideoPlayer {
     this.videoPath = videoPath
     this.canvas = canvas
     this.cvModules = cvModules
-
+    this.updateFilterList(cvModules)
     this.playing = false;
 
     this.timestamp = performance.now();
@@ -44,7 +44,7 @@ class VideoPlayer {
       frame = this._cap.read();
     }
 
-    setTimeout(this.play.bind(this), 33)
+    setTimeout(this.play.bind(this), 1)
     var dst = this.processImage(frame)
     this.renderFrame(dst);
 
@@ -62,8 +62,27 @@ class VideoPlayer {
     labelFrameNumber.innerHTML = "FN : " + this._cap.get(cv.CAP_PROP_POS_FRAMES )
   }
 
+  updateFilterList(cvModules) {
+    var htmlstg = "<table>"
+    cvModules.forEach((m, i) => {
+      htmlstg += `<tr>
+      <td><input id="ck_${i}" type="checkbox" ${m.enabled?"checked":""}/></td>
+      <th>${m.constructor.name}</th>
+      <td>${JSON.stringify(m.params)}</td>
+      </tr>`
+    })
+    htmlstg += "</table>"
+
+    labelFilterList.innerHTML = htmlstg
+    cvModules.forEach((m, i) => {
+      window[`ck_${i}`].addEventListener("click",e => {m.enabled = !m.enabled;this.updateFilterList(cvModules)})
+    })
+  }
+
   processImage(img) {
-    this.cvModules.forEach(m => {img = m.process(img)})
+    this.cvModules.forEach(m => {
+      if(m.enabled) img = m.process(img)
+    })
 
     return img;
   }
