@@ -31,6 +31,47 @@ CvtColor.defaultParams = {
   color: CvtColor.RGBA2GRAY
 }
 
+class Threshold extends CvModule {
+  process(img) {
+    return img.threshold(
+      this.params.thresh,
+      this.params.maxVal,
+      this.params.thresholdType
+    )
+  }
+}
+Threshold.BINARY = cv.THRESH_BINARY
+Threshold.BINARY_INV = cv.THRESH_BINARY_INV
+Threshold.TRUNC = cv.THRESH_TRUNC
+Threshold.TOZERO = cv.THRESH_TOZERO
+Threshold.TOZERO_INV = cv.THRESH_TOZERO_INV
+Threshold.defaultParams = {
+  thresh: 127,
+  maxVal: 255,
+  thresholdType: Threshold.BINARY
+}
+
+class AdaptiveThreshold extends CvModule {
+  process(img) {
+    return img.adaptiveThreshold(
+      this.params.maxVal,
+      this.params.adaptiveMethod,
+      this.params.thresholdType,
+      this.params.blockSize,
+      this.params.C
+    )
+  }
+}
+AdaptiveThreshold.MEAN_C = cv.ADAPTIVE_THRESH_MEAN_C
+AdaptiveThreshold.GAUSSIAN_C = cv.ADAPTIVE_THRESH_GAUSSIAN_C
+AdaptiveThreshold.defaultParams = {
+  maxVal: 255,
+  adaptiveMethod : AdaptiveThreshold.GAUSSIAN_C,
+  thresholdType: Threshold.BINARY,
+  blockSize: 11,
+  C: 2
+}
+
 class GaussianBlur extends CvModule {
   constructor(params, enabled) {
     super(params, enabled)
@@ -48,6 +89,31 @@ GaussianBlur.defaultParams = {
   sigmaX:0,
   //sigmaY:0,
   //borderType:0
+}
+
+class Sobel extends CvModule {
+  process(img) {
+    return img.sobel(
+      this.params.ddepth,
+      this.params.dx,
+      this.params.dy,
+      this.params.ksize,
+      this.params.scale,
+      this.params.delta,
+      this.params.borderType
+    )
+    .abs()
+    .convertTo(cv.CV_8U)
+  }
+}
+Sobel.defaultParams = {
+  ddepth : cv.CV_16S,
+  dx: 1,
+  dy: 0,
+  ksize: 3,
+  scale: 1.0,
+  delta: 0.0,
+  borderType: cv.BORDER_DEFAULT
 }
 
 class Canny extends CvModule {
@@ -249,17 +315,101 @@ HoughCircles.defaultParams = {
   maxRadius: 0
 }
 
+class BackgroundSubtractorMOG2 extends CvModule {
+  constructor(params, enabled) {
+    super(params, enabled)
+
+    this.bgSubtractor  = new cv.BackgroundSubtractorMOG2()
+  }
+
+  process(img) {
+    var dst = this.bgSubtractor.apply(img)
+    return dst
+  }
+}
+BackgroundSubtractorMOG2.defaultParams = {
+  /*
+  sigma : number ,
+  lambda : number ,
+  interp_factor : number ,
+  output_sigma_factor : number ,
+  pca_learning_rate : number ,
+  resize : boolean ,
+  split_coeff : boolean ,
+  wrap_kernel : boolean ,
+  compress_feature : boolean ,
+  max_patch_size : int ,
+  compressed_size : int ,
+  desc_pca : uint ,
+  desc_npca : uint
+  */
+}
+
+
+
+/*
+class TrackerKCF extends CvModule {
+  constructor(params, enabled) {
+    super(params, enabled)
+
+    var test=  cv.TrackerKCF
+
+    this.tracker = new cv.TrackerKCF()
+    this.param.rect = new cv.Rect(100,100,50,100)
+    this.initialized = false;
+  }
+
+  process(img) {
+    if (!this.initialized) {
+      this.tracker.init(img, this.param.rect)
+    }
+    var rect = this.tracker.update(img);
+
+    var dst = img.copy();
+    dst.drawRectangle (
+      rect, //rect
+      new cv.Vec(0, 0, 255), //  color
+      2,// thickness
+      cv.LINE_8,// lineType
+      0// shift
+    )
+
+    return dst
+  }
+}
+TrackerKCF.defaultParams = {
+  sigma : number ,
+  lambda : number ,
+  interp_factor : number ,
+  output_sigma_factor : number ,
+  pca_learning_rate : number ,
+  resize : boolean ,
+  split_coeff : boolean ,
+  wrap_kernel : boolean ,
+  compress_feature : boolean ,
+  max_patch_size : int ,
+  compressed_size : int ,
+  desc_pca : uint ,
+  desc_npca : uint
+}
+*/
+
 
 // export
 module.exports = {
   CvModule: CvModule,
   CvtColor: CvtColor,
+  Threshold: Threshold,
+  AdaptiveThreshold: AdaptiveThreshold,
   GaussianBlur: GaussianBlur,
   Dilate: Dilate,
   Erode: Erode,
   MorphologyEx: MorphologyEx,
+  Sobel: Sobel,
   Canny: Canny,
   HoughLines: HoughLines,
   HoughLinesP: HoughLinesP,
-  HoughCircles: HoughCircles
+  HoughCircles: HoughCircles,
+  //TrackerKCF: TrackerKCF,
+  BackgroundSubtractorMOG2: BackgroundSubtractorMOG2
 }
