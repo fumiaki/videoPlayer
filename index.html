@@ -31,18 +31,20 @@
       var cvs = document.getElementById('mainCanvas');
       var cvModules = [
         new cm.CvtColor({color:cm.CvtColor.RGB2GRAY}),
-        new cm.GaussianBlur({ksize:[9,9]}),
+        new cm.GaussianBlur({ksize:[9,9]},enabled=false),
         new cm.Threshold({maxVal:127},enabled=false),
         new cm.AdaptiveThreshold({},enabled=false),
         new cm.Dilate({},enabled=false),
         new cm.Erode({},enabled=false),
-        new cm.MorphologyEx({kernel: new cv.Mat(15, 15, cv.CV_8U, 1), morphType: cv.MORPH_OPEN}),
+        new cm.MorphologyEx({kernel: new cv.Mat(15, 15, cv.CV_8U, 1), morphType: cv.MORPH_OPEN},enabled=false),
         new cm.Sobel({},enabled=false),
-        new cm.Canny({minVal: 80, maxVal: 20,}),
+        new cm.Canny({minVal: 80, maxVal: 20,},enabled=false),
         new cm.HoughLines({},enabled=false),
         new cm.HoughLinesP({},enabled=false),
         new cm.HoughCircles({},enabled=false),
         new cm.BackgroundSubtractorMOG2({},enabled=false),
+        new cm.ConnectedComponentsWithStats({},enabled=false),
+        new cm.TrackerKCF({},enabled=false),
       ]
 
       vp = new VideoPlayer(VIDEO_FILE, cvs, cvModules);

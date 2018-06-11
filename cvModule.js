@@ -345,27 +345,76 @@ BackgroundSubtractorMOG2.defaultParams = {
   */
 }
 
+class ConnectedComponentsWithStats extends CvModule {
+  process(img) {
+    var result = img.connectedComponentsWithStats (
+      this.params.connectivity,
+      this.params.ltype
+    )
+
+    //var dst = result.labels.convertTo(cv.CV_8U).cvtColor(cv.COLOR_GRAY2BGR)
+    var dst = img.copy().cvtColor(cv.COLOR_GRAY2BGR);
+
+    var statsArr = result.stats.getDataAsArray()
+    statsArr.forEach(data => {
+      //console.log(data)
+      dst.drawRectangle (
+        new cv.Rect(data[0], data[1], data[2], data[3]), //rect
+        new cv.Vec(0, 0, 255), //  color
+        2,// thickness
+        cv.LINE_8,// lineType
+        0// shift
+      )
+    })
+    var centroidsArr = result.centroids.getDataAsArray()
+    centroidsArr.forEach(data => {
+      //console.log(data)
+      dst.drawCircle (
+        new cv.Point2(data[0], data[1]), //center
+        4, // radius
+        new cv.Vec(0, 255, 255), //  color
+        2,// thickness
+        cv.LINE_8,// lineType
+        0// shift
+      )
+    })
+
+    return dst
+
+  }
+}
+ConnectedComponentsWithStats.defaultParams = {
+  connectivity: 8,
+  ltype: cv.CV_32S,
+}
 
 
-/*
 class TrackerKCF extends CvModule {
   constructor(params, enabled) {
     super(params, enabled)
 
-    var test=  cv.TrackerKCF
-
-    this.tracker = new cv.TrackerKCF()
-    this.param.rect = new cv.Rect(100,100,50,100)
     this.initialized = false;
+  }
+
+  //
+  set enabled(enabled) {
+    this.initialized = false
+    this._enabled = enabled
+  }
+  get enabled() {
+    return this._enabled
   }
 
   process(img) {
     if (!this.initialized) {
-      this.tracker.init(img, this.param.rect)
+      this.tracker = new cv.TrackerKCF()
+      this.tracker.init(img, new cv.Rect(150,400,100,100))
+      this.initialized = true;
+      console.log("INIT")
     }
     var rect = this.tracker.update(img);
 
-    var dst = img.copy();
+    var dst = img.copy().cvtColor(cv.COLOR_GRAY2BGR);
     dst.drawRectangle (
       rect, //rect
       new cv.Vec(0, 0, 255), //  color
@@ -378,6 +427,7 @@ class TrackerKCF extends CvModule {
   }
 }
 TrackerKCF.defaultParams = {
+  /*
   sigma : number ,
   lambda : number ,
   interp_factor : number ,
@@ -391,8 +441,8 @@ TrackerKCF.defaultParams = {
   compressed_size : int ,
   desc_pca : uint ,
   desc_npca : uint
+  */
 }
-*/
 
 
 // export
@@ -410,6 +460,7 @@ module.exports = {
   HoughLines: HoughLines,
   HoughLinesP: HoughLinesP,
   HoughCircles: HoughCircles,
-  //TrackerKCF: TrackerKCF,
-  BackgroundSubtractorMOG2: BackgroundSubtractorMOG2
+  TrackerKCF: TrackerKCF,
+  BackgroundSubtractorMOG2: BackgroundSubtractorMOG2,
+  ConnectedComponentsWithStats: ConnectedComponentsWithStats
 }
