@@ -5,8 +5,10 @@
     <title>Video Player Electron</title>
   </head>
   <body>
-    <div style="max-width: 400px">
-      <canvas id="mainCanvas" onclick="vp.playing=!vp.playing;"></canvas>
+    <div onclick="vp.playing=!vp.playing;" style="position: relative">
+      <canvas id="main" style="position: absolute;z-index: -1"></canvas>
+      <div id="imgDisplay" style="position: absolute;z-index: 0"></div>
+      <canvas id="progress" style="position: relative;z-index: 100"></canvas>
     </div>
 
     <div>
@@ -28,26 +30,36 @@
       var cm = require('./cvModule.js');
 
       var VIDEO_FILE = path.resolve('asset', 'vtest.avi');
-      var cvs = document.getElementById('mainCanvas');
+      var cvs = document.getElementById('main');
+      var cvsOL = document.getElementById('progress');
+      //test
+      var ctx=cvsOL.getContext('2d');
+      ctx.fillStyle = "rgb(255, 127, 0)";
+      ctx.fillRect (0, 0, 100, 500);
+
+      //
       var cvModules = [
-        new cm.CvtColor({color:cm.CvtColor.RGB2GRAY}),
-        new cm.GaussianBlur({ksize:[9,9]},enabled=false),
-        new cm.Threshold({maxVal:127},enabled=false),
+        new cm.CvtColor({color:cm.CvtColor.RGB2GRAY},enabled=true),
+        new cm.GaussianBlur({ksize:[9,9]},enabled=true),
+        new cm.Threshold({maxVal:255},enabled=false),
         new cm.AdaptiveThreshold({},enabled=false),
         new cm.Dilate({},enabled=false),
         new cm.Erode({},enabled=false),
         new cm.MorphologyEx({kernel: new cv.Mat(15, 15, cv.CV_8U, 1), morphType: cv.MORPH_OPEN},enabled=false),
         new cm.Sobel({},enabled=false),
-        new cm.Canny({minVal: 80, maxVal: 20,},enabled=false),
+        new cm.Canny({minVal: 80, maxVal: 20,},enabled=true),
         new cm.HoughLines({},enabled=false),
+        new cm.HoughLines2({},enabled=false),
         new cm.HoughLinesP({},enabled=false),
+        new cm.HoughLinesP2({},enabled=false),
         new cm.HoughCircles({},enabled=false),
         new cm.BackgroundSubtractorMOG2({},enabled=false),
         new cm.ConnectedComponentsWithStats({},enabled=false),
         new cm.TrackerKCF({},enabled=false),
+        new cm.Disp_TrackerKCF({},enable=false),
       ]
 
-      vp = new VideoPlayer(VIDEO_FILE, cvs, cvModules);
+      vp = new VideoPlayer(VIDEO_FILE, cvs, cvsOL, cvModules);
       vp.play();
       vp.playing = true
     })

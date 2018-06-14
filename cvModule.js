@@ -7,20 +7,43 @@ class CvModule {
     this.enabled = enabled
   }
 
-  process(img) {
+  // data = {
+  //   img: image to process,
+  //   meta: metadata
+  // }
+  process(data) {
     // do nothing
-    return img
+    return data
   }
 }
 CvModule.defaultParams = {}
 
-class CvtColor extends CvModule {
-  // constructor(params) {
-  //   super(params)
-  // }
+// Base class for display metadata
+class CvDisplayModule extends CvModule {
+  constructor(params, enabled) {
+    super(params, enabled)
 
-  process(img) {
-    return img.cvtColor(this.params.color)
+    this.canvas = document.createElement("canvas")
+    this.canvas.style.position = "absolute"
+    document.getElementById('imgDisplay').appendChild(this.canvas)
+  }
+
+  set enabled(enabled) {
+    if (this.canvas) this.canvas.style.display = enabled ? "block" : "none"
+    this._enabled = enabled
+  }
+  get enabled() {
+    return this._enabled
+  }
+}
+CvDisplayModule.defaultParams = {}
+
+class CvtColor extends CvModule {
+  process(data) {
+    return {
+      img: data.img.cvtColor(this.params.color),
+      meta: data.meta
+    }
   }
 }
 CvtColor.RGB2GRAY = cv.COLOR_RGB2GRAY
@@ -32,12 +55,15 @@ CvtColor.defaultParams = {
 }
 
 class Threshold extends CvModule {
-  process(img) {
-    return img.threshold(
-      this.params.thresh,
-      this.params.maxVal,
-      this.params.thresholdType
-    )
+  process(data) {
+    return {
+      img: data.img.threshold(
+        this.params.thresh,
+        this.params.maxVal,
+        this.params.thresholdType
+      ),
+      meta: data.meta
+    }
   }
 }
 Threshold.BINARY = cv.THRESH_BINARY
@@ -52,14 +78,17 @@ Threshold.defaultParams = {
 }
 
 class AdaptiveThreshold extends CvModule {
-  process(img) {
-    return img.adaptiveThreshold(
-      this.params.maxVal,
-      this.params.adaptiveMethod,
-      this.params.thresholdType,
-      this.params.blockSize,
-      this.params.C
-    )
+  process(data) {
+    return {
+      img: data.img.adaptiveThreshold(
+        this.params.maxVal,
+        this.params.adaptiveMethod,
+        this.params.thresholdType,
+        this.params.blockSize,
+        this.params.C
+      ),
+      meta: data.meta
+    }
   }
 }
 AdaptiveThreshold.MEAN_C = cv.ADAPTIVE_THRESH_MEAN_C
@@ -77,11 +106,14 @@ class GaussianBlur extends CvModule {
     super(params, enabled)
     this.params.ksizeObj = new cv.Size(this.params.ksize[0], this.params.ksize[1])
   }
-  process(img) {
-    return img.gaussianBlur(
-      this.params.ksizeObj,
-      this.params.sigmaX
-    );
+  process(data) {
+    return {
+      img: data.img.gaussianBlur(
+        this.params.ksizeObj,
+        this.params.sigmaX
+      ),
+      meta: data.meta
+    }
   }
 }
 GaussianBlur.defaultParams = {
@@ -92,18 +124,21 @@ GaussianBlur.defaultParams = {
 }
 
 class Sobel extends CvModule {
-  process(img) {
-    return img.sobel(
-      this.params.ddepth,
-      this.params.dx,
-      this.params.dy,
-      this.params.ksize,
-      this.params.scale,
-      this.params.delta,
-      this.params.borderType
-    )
-    .abs()
-    .convertTo(cv.CV_8U)
+  process(data) {
+    return {
+      img: data.img.sobel(
+        this.params.ddepth,
+        this.params.dx,
+        this.params.dy,
+        this.params.ksize,
+        this.params.scale,
+        this.params.delta,
+        this.params.borderType
+      )
+      .abs()
+      .convertTo(cv.CV_8U),
+      meta: data.meta
+    }
   }
 }
 Sobel.defaultParams = {
@@ -117,11 +152,14 @@ Sobel.defaultParams = {
 }
 
 class Canny extends CvModule {
-  process(img) {
-    return img.canny(
-      this.params.minVal,
-      this.params.maxVal
-    );
+  process(data) {
+    return {
+      img: data.img.canny(
+        this.params.minVal,
+        this.params.maxVal
+      ),
+      meta: data.meta
+    }
   }
 }
 Canny.defaultParams = {
@@ -131,13 +169,16 @@ Canny.defaultParams = {
 
 
 class Dilate extends CvModule {
-  process(img) {
-    return img.dilate(
-      this.params.kernel,
-      this.params.anchor,
-      this.params.iterations,
-      this.params.borderType
-    );
+  process(data) {
+    return {
+      img: data.img.dilate(
+        this.params.kernel,
+        this.params.anchor,
+        this.params.iterations,
+        this.params.borderType
+      ),
+      meta: data.meta
+    }
   }
 }
 Dilate.defaultParams = {
@@ -148,13 +189,16 @@ Dilate.defaultParams = {
 }
 
 class Erode extends CvModule {
-  process(img) {
-    return img.erode(
-      this.params.kernel,
-      this.params.anchor,
-      this.params.iterations,
-      this.params.borderType
-    );
+  process(data) {
+    return {
+      img: data.img.erode(
+        this.params.kernel,
+        this.params.anchor,
+        this.params.iterations,
+        this.params.borderType
+      ),
+      meta: data.meta
+    }
   }
 }
 Erode.defaultParams = {
@@ -165,14 +209,17 @@ Erode.defaultParams = {
 }
 
 class MorphologyEx extends CvModule {
-  process(img) {
-    return img.morphologyEx(
-      this.params.kernel,
-      this.params.morphType,
-      this.params.anchor,
-      this.params.iterations,
-      this.params.borderType
-    );
+  process(data) {
+    return {
+      img: data.img.morphologyEx(
+        this.params.kernel,
+        this.params.morphType,
+        this.params.anchor,
+        this.params.iterations,
+        this.params.borderType
+      ),
+      meta: data.meta
+    }
   }
 }
 MorphologyEx.MORPH_OPEN = cv.MORPH_OPEN
@@ -190,8 +237,8 @@ MorphologyEx.defaultParams = {
 
 
 class HoughLines extends CvModule {
-  process(img) {
-    var lines = img.houghLines(
+  process(data) {
+    var lines = data.img.houghLines(
       this.params.rho,
       this.params.theta,
       this.params.threshold,
@@ -200,9 +247,15 @@ class HoughLines extends CvModule {
       this.params.min_theta,
       this.params.max_theta
     );
-    //console.log(lines[0])
-    var dst = img.copy().cvtColor(cv.COLOR_GRAY2BGR);
-    lines.forEach(vec2 => {
+
+    var dst = this.draw({img: data.img, meta: lines})
+
+    return {img: dst, meta: lines}
+  }
+
+  draw(data) {
+    var dst = data.img.copy().cvtColor(cv.COLOR_GRAY2BGR);
+    data.meta.forEach(vec2 => {
       var rho = vec2.x
       var theta  = vec2.y
       var a = Math.cos(theta)
@@ -238,9 +291,64 @@ HoughLines.defaultParams = {
   max_theta: Math.PI
 }
 
+class HoughLines2 extends CvDisplayModule {
+  process(data) {
+    var lines = data.img.houghLines(
+      this.params.rho,
+      this.params.theta,
+      this.params.threshold,
+      this.params.srn,
+      this.params.stn,
+      this.params.min_theta,
+      this.params.max_theta
+    );
+
+    this.draw({img: data.img, meta: lines})
+
+    return {img: data.img, meta: lines}
+  }
+
+  draw(data) {
+    this.canvas.height = data.img.rows;
+    this.canvas.width = data.img.cols;
+
+    var ctx = this.canvas.getContext("2d")
+    ctx.beginPath()
+    ctx.strokeStyle = "rgba(128, 0, 128, 0.8)"
+    ctx.lineWidth = "1"
+    data.meta.forEach(vec2 => {
+      var rho = vec2.x
+      var theta  = vec2.y
+      var a = Math.cos(theta)
+      var b = Math.sin(theta)
+      var x0 = a*rho
+      var y0 = b*rho
+      var l = 2000
+
+      var x1 = x0 + l*(-b)
+      var y1 = y0 + l*(a)
+      var x2 = x0 - l*(-b)
+      var y2 = y0 - l*(a)
+
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+    })
+    ctx.stroke();
+  }
+}
+HoughLines2.defaultParams = {
+  rho: 1,
+  theta: Math.PI/180.0,
+  threshold: 100,
+  srn: 0.0,
+  stn: 0.0,
+  min_theta: 0.0,
+  max_theta: Math.PI
+}
+
 class HoughLinesP extends CvModule {
-  process(img) {
-    var lines = img.houghLinesP(
+  process(data) {
+    var lines = data.img.houghLinesP(
       this.params.rho,
       this.params.theta,
       this.params.threshold,
@@ -248,23 +356,29 @@ class HoughLinesP extends CvModule {
       this.params.maxLineGap
     );
 
-    var dst = img.copy().cvtColor(cv.COLOR_GRAY2BGR);
-    lines.forEach(vec4 => {
-      var x1 = vec4.w
-      var y1 = vec4.x
-      var x2 = vec4.y
-      var y2 = vec4.z
+    var dst = this.draw({img: data.img, meta: lines})
 
-      dst.drawLine (
-        new cv.Point2(x1,y1),
-        new cv.Point2(x2,y2),
-        new cv.Vec(255, 0, 0),
-        2,
-        cv.LINE_8,
-        0
-      )
-    })
-    return dst
+    return {img: dst, meta: lines}
+  }
+
+  draw(data) {
+        var dst = data.img.copy().cvtColor(cv.COLOR_GRAY2BGR);
+        data.meta.forEach(vec4 => {
+          var x1 = vec4.w
+          var y1 = vec4.x
+          var x2 = vec4.y
+          var y2 = vec4.z
+
+          dst.drawLine (
+            new cv.Point2(x1,y1),
+            new cv.Point2(x2,y2),
+            new cv.Vec(255, 0, 0),
+            2,
+            cv.LINE_8,
+            0
+          )
+        })
+        return dst
   }
 }
 HoughLinesP.defaultParams = {
@@ -274,10 +388,52 @@ HoughLinesP.defaultParams = {
   minLineLength: 30,
   maxLineGap: 10
 }
+class HoughLinesP2 extends CvDisplayModule {
+  process(data) {
+    var lines = data.img.houghLinesP(
+      this.params.rho,
+      this.params.theta,
+      this.params.threshold,
+      this.params.minLineLength,
+      this.params.maxLineGap
+    );
+
+    this.draw({img: data.img, meta: lines})
+
+    return {img: data.img, meta: lines}
+  }
+
+  draw(data) {
+    this.canvas.height = data.img.rows;
+    this.canvas.width = data.img.cols;
+
+    var ctx = this.canvas.getContext("2d")
+    ctx.beginPath()
+    ctx.strokeStyle = "rgba(0, 0, 255, 0.8)"
+    ctx.lineWidth = "2"
+    data.meta.forEach(vec4 => {
+      var x1 = vec4.w
+      var y1 = vec4.x
+      var x2 = vec4.y
+      var y2 = vec4.z
+
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+    })
+    ctx.stroke();
+  }
+}
+HoughLinesP2.defaultParams = {
+  rho: 1,
+  theta: Math.PI/180.0,
+  threshold: 50,
+  minLineLength: 30,
+  maxLineGap: 10
+}
 
 class HoughCircles extends CvModule {
-  process(img) {
-    var circles = img.houghCircles(
+  process(data) {
+    var circles = data.img.houghCircles(
       this.params.method,
       this.params.dp,
       this.params.minDist,
@@ -287,8 +443,14 @@ class HoughCircles extends CvModule {
       this.params.maxRadius
     );
 
-    var dst = img.copy().cvtColor(cv.COLOR_GRAY2BGR);
-    circles.forEach(vec3 => {
+    var dst = this.draw({img: data.img, meta: circles})
+
+    return {img: dst, meta: circles}
+  }
+
+  draw(data) {
+    var dst = data.img.copy().cvtColor(cv.COLOR_GRAY2BGR);
+    data.meta.forEach(vec3 => {
       var x = vec3.x
       var y = vec3.y
       var r = vec3.z
@@ -322,9 +484,9 @@ class BackgroundSubtractorMOG2 extends CvModule {
     this.bgSubtractor  = new cv.BackgroundSubtractorMOG2()
   }
 
-  process(img) {
-    var dst = this.bgSubtractor.apply(img)
-    return dst
+  process(data) {
+    var dst = this.bgSubtractor.apply(data.img)
+    return {img: dst, meta: data.meta}
   }
 }
 BackgroundSubtractorMOG2.defaultParams = {
@@ -346,31 +508,37 @@ BackgroundSubtractorMOG2.defaultParams = {
 }
 
 class ConnectedComponentsWithStats extends CvModule {
-  process(img) {
-    var result = img.connectedComponentsWithStats (
+  process(data) {
+    var result = data.img.connectedComponentsWithStats (
       this.params.connectivity,
       this.params.ltype
     )
 
-    //var dst = result.labels.convertTo(cv.CV_8U).cvtColor(cv.COLOR_GRAY2BGR)
-    var dst = img.copy().cvtColor(cv.COLOR_GRAY2BGR);
+    var dst = this.draw({img: data.img, meta: result})
 
-    var statsArr = result.stats.getDataAsArray()
-    statsArr.forEach(data => {
+    return {img: dst, meta: result}
+  }
+
+  draw(data) {
+    //var dst = result.labels.convertTo(cv.CV_8U).cvtColor(cv.COLOR_GRAY2BGR)
+    var dst = data.img.copy().cvtColor(cv.COLOR_GRAY2BGR);
+
+    var statsArr = data.meta.stats.getDataAsArray()
+    statsArr.forEach(stat => {
       //console.log(data)
       dst.drawRectangle (
-        new cv.Rect(data[0], data[1], data[2], data[3]), //rect
+        new cv.Rect(stat[0], stat[1], stat[2], stat[3]), //rect
         new cv.Vec(0, 0, 255), //  color
         2,// thickness
         cv.LINE_8,// lineType
         0// shift
       )
     })
-    var centroidsArr = result.centroids.getDataAsArray()
-    centroidsArr.forEach(data => {
+    var centroidsArr = data.meta.centroids.getDataAsArray()
+    centroidsArr.forEach(centroid => {
       //console.log(data)
       dst.drawCircle (
-        new cv.Point2(data[0], data[1]), //center
+        new cv.Point2(centroid[0], centroid[1]), //center
         4, // radius
         new cv.Vec(0, 255, 255), //  color
         2,// thickness
@@ -405,18 +573,23 @@ class TrackerKCF extends CvModule {
     return this._enabled
   }
 
-  process(img) {
+  process(data) {
     if (!this.initialized) {
       this.tracker = new cv.TrackerKCF()
-      this.tracker.init(img, new cv.Rect(150,400,100,100))
+      this.tracker.init(data.img, new cv.Rect(200,150,100,100))
       this.initialized = true;
-      console.log("INIT")
     }
-    var rect = this.tracker.update(img);
+    var rect = this.tracker.update(data.img);
 
-    var dst = img.copy().cvtColor(cv.COLOR_GRAY2BGR);
+    //var dst = this.draw({img: data.img, meta: {rect:rect}})
+
+    return {img: data.img, meta: {rect:rect}}
+  }
+
+  draw(data) {
+    var dst = data.img.copy().cvtColor(cv.COLOR_GRAY2BGR);
     dst.drawRectangle (
-      rect, //rect
+      data.meta.rect, //rect
       new cv.Vec(0, 0, 255), //  color
       2,// thickness
       cv.LINE_8,// lineType
@@ -444,6 +617,25 @@ TrackerKCF.defaultParams = {
   */
 }
 
+class Disp_TrackerKCF extends CvDisplayModule {
+  process(data) {
+    if (!data.meta.rect) return data;//do nothing
+
+    this.canvas.height = data.img.rows;
+    this.canvas.width = data.img.cols;
+
+    var r = data.meta.rect
+    var ctx = this.canvas.getContext("2d")
+    ctx.fillStyle = this.params.fillStyle
+    ctx.fillRect(r.x, r.y, r.width, r.height)
+
+    //return {img: data.img, meta:{path: p}}
+    return {img: data.img, meta:data.meta}
+  }
+}
+Disp_TrackerKCF.defaultParams = {
+  fillStyle: "rgba(255, 0, 0, 0.5)"
+}
 
 // export
 module.exports = {
@@ -458,9 +650,12 @@ module.exports = {
   Sobel: Sobel,
   Canny: Canny,
   HoughLines: HoughLines,
+  HoughLines2: HoughLines2,
   HoughLinesP: HoughLinesP,
+  HoughLinesP2: HoughLinesP2,
   HoughCircles: HoughCircles,
   TrackerKCF: TrackerKCF,
   BackgroundSubtractorMOG2: BackgroundSubtractorMOG2,
-  ConnectedComponentsWithStats: ConnectedComponentsWithStats
+  ConnectedComponentsWithStats: ConnectedComponentsWithStats,
+  Disp_TrackerKCF: Disp_TrackerKCF,
 }

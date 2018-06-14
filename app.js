@@ -2,9 +2,10 @@ var cv = require('opencv4nodejs');
 var cm = require('./cvModule.js');
 
 class VideoPlayer {
-  constructor(videoPath, canvas, cvModules=[]) {
+  constructor(videoPath, canvas, canvasOverlay, cvModules=[]) {
     this.videoPath = videoPath
     this.canvas = canvas
+    this.canvasOverlay = canvasOverlay
     this.cvModules = cvModules
     this.updateFilterList(cvModules)
     this.playing = false;
@@ -15,6 +16,27 @@ class VideoPlayer {
   set videoPath(videoPath) {
     this._videoPath = videoPath
     this._cap = new cv.VideoCapture(videoPath);
+  }
+
+  play() {
+    if(!this.playing) {
+       setTimeout(this.play.bind(this), 33)
+       return
+    }
+
+    var frame = this._cap.read();
+    if (frame.empty) {
+      this._cap.reset();
+      frame = this._cap.read();
+    }
+
+    setTimeout(this.play.bind(this), 1)
+    var res = this.process({img: frame, meta:{}})
+    this.renderFrame(res.img);
+    this.renderProgressBar();
+    this.updateStatus()
+
+    //setTimeout(this.play.bind(this), 1)
   }
 
   renderFrame(img) {
@@ -32,25 +54,38 @@ class VideoPlayer {
     this.canvas.getContext('2d').putImageData(imgData, 0, 0);
   }
 
-  play() {
-    if(!this.playing) {
-       setTimeout(this.play.bind(this), 33)
-       return
-    }
+  /*
+  renderMetadata(meta) {
+    this.canvasOverlay.height = this.canvas.height
+    this.canvasOverlay.width = this.canvas.width
+    //this.renderProgressBar();
 
-    var frame = this._cap.read();
-    if (frame.empty) {
-      this._cap.reset();
-      frame = this._cap.read();
-    }
+    if (!meta.path) return;
 
-    setTimeout(this.play.bind(this), 1)
-    var dst = this.processImage(frame)
-    this.renderFrame(dst);
+    var ctx = this.canvasOverlay.getContext('2d');
+    ctx.fillStyle = "rgba(255, 0, 0, 0.5)"
+    ctx.fill(meta.path)
+  }
+  */
 
-    this.updateStatus()
+  renderProgressBar() {
+    //test
+    this.canvasOverlay.height = this.canvas.height
+    this.canvasOverlay.width = this.canvas.width
 
-    //setTimeout(this.play.bind(this), 1)
+    var fp = this._cap.get(cv.CAP_PROP_POS_FRAMES)
+    var fc = this._cap.get(cv.CAP_PROP_FRAME_COUNT)
+    var x = fp*this.canvas.width/fc
+
+    var ctx = this.canvasOverlay.getContext('2d');
+    ctx.fillStyle = "rgb(255, 127, 0)";
+    ctx.fillRect (x, 0, 1, this.canvas.height);
+    ctx.font = "24px serif";
+    ctx.fillText(fp, x+4, this.canvas.height-4);
+    ctx.fillStyle = "rgba(255, 255, 127, 0.5)";
+    ctx.fillRect (0, this.canvas.height-24, x, this.canvas.height);
+    //var p = new Path2D("M10 10 h 80 v 80 h -80 Z");
+    //ctx.fill(p)
   }
 
   updateStatus() {
@@ -79,11 +114,11 @@ class VideoPlayer {
     })
   }
 
-  processImage(img) {
+  process(data) {
     this.cvModules.forEach(m => {
-      if(m.enabled) img = m.process(img)
+      if(m.enabled) data = m.process(data)
     })
 
-    return img;
+    return data;
   }
 }
