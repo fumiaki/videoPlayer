@@ -1,5 +1,5 @@
 var cv = require('opencv4nodejs');
-var cm = require('./cvModule.js');
+//var cm = require('./cvModules');
 
 class VideoPlayer {
   constructor(videoPath, canvas, canvasOverlay, cvModules=[]) {
@@ -20,7 +20,7 @@ class VideoPlayer {
 
   play() {
     if(!this.playing) {
-       setTimeout(this.play.bind(this), 33)
+       requestAnimationFrame(this.play.bind(this))
        return
     }
 
@@ -30,7 +30,8 @@ class VideoPlayer {
       frame = this._cap.read();
     }
 
-    setTimeout(this.play.bind(this), 1)
+    //setTimeout(this.play.bind(this), 1)
+    requestAnimationFrame(this.play.bind(this))
     var res = this.process({img: frame, meta:{}})
     this.renderFrame(res.img);
     this.renderProgressBar();
