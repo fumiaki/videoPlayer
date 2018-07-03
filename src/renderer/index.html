@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Video Player Electron</title>
+
+  </head>
+  <body>
+    <div onclick="vp.playing=!vp.playing;" style="position: relative">
+      <canvas id="main" style="position: absolute;z-index: -1"></canvas>
+      <div id="imgDisplay" style="position: absolute;z-index: 0"></div>
+      <canvas id="progress" style="position: relative;z-index: 100"></canvas>
+    </div>
+
+    <div>
+      <button id="btnPlay" onclick="vp.playing=!vp.playing;">Play</button>
+    </div>
+
+    <div>
+      <div id="labelFramerate">FPS:000</div>
+      <div id="labelFrameNumber">FN :0</div>
+      <div id="labelMsec">MSEC :0</div>
+      <div id="labelFilterList">(no filter)</div>
+      <cv-module-list id="moduleList"></cv-module-list>
+    </div>
+
+    <script src="app.js"></script>
+
+  </body>
+</html>

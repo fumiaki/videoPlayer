@@ -1,5 +1,4 @@
 var cv = require('opencv4nodejs');
-//var cm = require('./cvModules');
 
 class VideoPlayer {
   constructor(videoPath, canvas, canvasOverlay, cvModules=[]) {
@@ -7,7 +6,7 @@ class VideoPlayer {
     this.canvas = canvas
     this.canvasOverlay = canvasOverlay
     this.cvModules = cvModules
-    this.updateFilterList(cvModules)
+    //this.updateFilterList(cvModules)
     this.playing = false;
 
     this.timestamp = performance.now();
@@ -80,7 +79,7 @@ class VideoPlayer {
 
     var ctx = this.canvasOverlay.getContext('2d');
     ctx.fillStyle = "rgb(255, 127, 0)";
-    ctx.fillRect (x, 0, 1, this.canvas.height);
+    //ctx.fillRect (x, 0, 1, this.canvas.height);
     ctx.font = "24px serif";
     ctx.fillText(fp, x+4, this.canvas.height-4);
     ctx.fillStyle = "rgba(255, 255, 127, 0.5)";
@@ -96,6 +95,7 @@ class VideoPlayer {
 
     labelFramerate.innerHTML = "FPS: " + (1000/timeInterval)
     labelFrameNumber.innerHTML = "FN : " + this._cap.get(cv.CAP_PROP_POS_FRAMES )
+    labelMsec.innerHTML = "MSEC : " + this._cap.get(cv.CAP_PROP_POS_MSEC )
   }
 
   updateFilterList(cvModules) {
@@ -123,3 +123,5 @@ class VideoPlayer {
     return data;
   }
 }
+
+module.exports = VideoPlayer

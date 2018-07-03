@@ -23,7 +23,7 @@ class TrackerKCF extends CvModule {
   process(data) {
     if (!this.initialized) {
       this.tracker = new cv.TrackerKCF()
-      this.tracker.init(data.img, new cv.Rect(200,150,100,100))
+      this.tracker.init(data.img, new cv.Rect(...this.params.rect))
       this.initialized = true;
     }
     var rect = this.tracker.update(data.img);
@@ -47,21 +47,7 @@ class TrackerKCF extends CvModule {
   }
 }
 TrackerKCF.defaultParams = {
-  /*
-  sigma : number ,
-  lambda : number ,
-  interp_factor : number ,
-  output_sigma_factor : number ,
-  pca_learning_rate : number ,
-  resize : boolean ,
-  split_coeff : boolean ,
-  wrap_kernel : boolean ,
-  compress_feature : boolean ,
-  max_patch_size : int ,
-  compressed_size : int ,
-  desc_pca : uint ,
-  desc_npca : uint
-  */
+  rect : [200,150,100,100] ,
 }
 
 class Disp_TrackerKCF extends CvDisplayModule {
