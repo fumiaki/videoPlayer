@@ -1,15 +1,60 @@
-var cv = require('opencv4nodejs');
+import cv from 'opencv4nodejs'
+import { createStore } from 'redux'
 
-class VideoPlayer {
+// Initial state
+const initialState = {
+  playing: false,
+  frameNo: 0,
+  jump: false,
+}
+
+// Actions
+const PLAY = "PLAY"
+const JUMP = "JUMP"
+const NEXT_FRAME = "NEXT_FRAME"
+
+export const actions = {
+  play: () => ({type: PLAY}),
+  jump: (frameNo) => ({type: JUMP, frameNo: frameNo}),
+  nextFrame: () => ({type: NEXT_FRAME}),
+}
+
+// Reducer
+export const reducer = (state, action) => {
+  //console.log(action) // debug
+  switch (action.type) {
+    case PLAY:
+      return {...state, playing: !state.playing}
+    case JUMP:
+      console.log(action.frameNo)
+      return {...state, frameNo: action.frameNo, jump: true}
+    case NEXT_FRAME:
+      return {...state, frameNo: state.frameNo + 1, jump: false}
+    default:
+      return state;
+  }
+}
+
+// Store
+export const store = createStore(reducer, initialState)
+
+// TEST listener
+const testListener = () => {console.log(store.getState())}
+store.subscribe(testListener)
+
+export class VideoPlayer {
   constructor(videoPath, canvas, canvasOverlay, cvModules=[]) {
     this.videoPath = videoPath
     this.canvas = canvas
     this.canvasOverlay = canvasOverlay
     this.cvModules = cvModules
     //this.updateFilterList(cvModules)
-    this.playing = false;
+    //this.playing = false
 
-    this.timestamp = performance.now();
+    store.subscribe(this.render.bind(this))
+    //store.subscribe(this.playLoop.bind(this))
+
+    this.timestamp = performance.now()
   }
 
   set videoPath(videoPath) {
@@ -17,26 +62,33 @@ class VideoPlayer {
     this._cap = new cv.VideoCapture(videoPath);
   }
 
-  play() {
-    if(!this.playing) {
-       requestAnimationFrame(this.play.bind(this))
-       return
+  render() {
+    const state = store.getState()
+
+    //const currentFramePos = this._cap.get(cv.CAP_PROP_POS_FRAMES)
+    if(state.jump) {
+      this._cap.set(cv.CAP_PROP_POS_FRAMES, state.frameNo) // too slow
     }
 
-    var frame = this._cap.read();
-    if (frame.empty) {
-      this._cap.reset();
-      frame = this._cap.read();
+    this.frame = this._cap.read();
+    if (this.frame.empty) {
+      //this._cap.reset()
+      store.dispatch(actions.jump(0))
+      return
     }
 
-    //setTimeout(this.play.bind(this), 1)
-    requestAnimationFrame(this.play.bind(this))
-    var res = this.process({img: frame, meta:{}})
+    if(state.playing && !this.reserveNextFrame) {
+      requestAnimationFrame(() => {
+        this.reserveNextFrame = false
+        store.dispatch(actions.nextFrame())
+      })
+      this.reserveNextFrame = true
+    }
+
+    var res = this.process({img: this.frame, meta:{}})
     this.renderFrame(res.img);
     this.renderProgressBar();
-    this.updateStatus()
-
-    //setTimeout(this.play.bind(this), 1)
+    this.renderStatus()
   }
 
   renderFrame(img) {
@@ -54,26 +106,12 @@ class VideoPlayer {
     this.canvas.getContext('2d').putImageData(imgData, 0, 0);
   }
 
-  /*
-  renderMetadata(meta) {
-    this.canvasOverlay.height = this.canvas.height
-    this.canvasOverlay.width = this.canvas.width
-    //this.renderProgressBar();
-
-    if (!meta.path) return;
-
-    var ctx = this.canvasOverlay.getContext('2d');
-    ctx.fillStyle = "rgba(255, 0, 0, 0.5)"
-    ctx.fill(meta.path)
-  }
-  */
-
   renderProgressBar() {
     //test
     this.canvasOverlay.height = this.canvas.height
     this.canvasOverlay.width = this.canvas.width
 
-    var fp = this._cap.get(cv.CAP_PROP_POS_FRAMES)
+    var fp = this._cap.get(cv.CAP_PROP_POS_FRAMES) - 1
     var fc = this._cap.get(cv.CAP_PROP_FRAME_COUNT)
     var x = fp*this.canvas.width/fc
 
@@ -88,7 +126,7 @@ class VideoPlayer {
     //ctx.fill(p)
   }
 
-  updateStatus() {
+  renderStatus() {
     var time2 = performance.now();
     var timeInterval = time2-this.timestamp;
     this.timestamp = time2;
@@ -98,6 +136,7 @@ class VideoPlayer {
     labelMsec.innerHTML = "MSEC : " + this._cap.get(cv.CAP_PROP_POS_MSEC )
   }
 
+  /*
   updateFilterList(cvModules) {
     var htmlstg = "<table>"
     cvModules.forEach((m, i) => {
@@ -114,6 +153,7 @@ class VideoPlayer {
       window[`ck_${i}`].addEventListener("click",e => {m.enabled = !m.enabled;this.updateFilterList(cvModules)})
     })
   }
+  */
 
   process(data) {
     this.cvModules.forEach(m => {
@@ -124,4 +164,5 @@ class VideoPlayer {
   }
 }
 
-module.exports = VideoPlayer
+//module.exports = VideoPlayer
+//export default VideoPlayer

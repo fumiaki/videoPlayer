@@ -6,14 +6,18 @@
 
   </head>
   <body>
-    <div onclick="vp.playing=!vp.playing;" style="position: relative">
+    <div onclick="store.dispatch(actions.play())" style="position: relative">
       <canvas id="main" style="position: absolute;z-index: -1"></canvas>
       <div id="imgDisplay" style="position: absolute;z-index: 0"></div>
       <canvas id="progress" style="position: relative;z-index: 100"></canvas>
     </div>
 
     <div>
-      <button id="btnPlay" onclick="vp.playing=!vp.playing;">Play</button>
+      <button id="btnReset" onclick="store.dispatch(actions.jump(0))">Reset</button>
+      <button id="btnBack" onclick="store.dispatch(actions.jump(store.getState().frameNo - 1))">-1</button>
+      <button id="btnPlay" onclick="store.dispatch(actions.play())">Play/Pause</button>
+      <button id="btnPlay" onclick="store.dispatch(actions.jump(store.getState().frameNo + 1))">+1</button>
+      <button id="btnPlay" onclick="console.log(store.getState())">Play</button>
     </div>
 
     <div>

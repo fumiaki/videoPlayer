@@ -1,8 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import VideoPlayer from './videoPlayer';
+import * as vp from './videoPlayer';
 import cm from './cvModules';
-//const cv = require('opencv4nodejs');
 import cv from 'opencv4nodejs';
 
 import test from './TEST';
@@ -13,10 +12,6 @@ window.addEventListener("load", function() {
   var VIDEO_FILE = path.resolve('asset', 'vtest.avi');
   var cvs = document.getElementById('main');
   var cvsOL = document.getElementById('progress');
-  //test
-  var ctx=cvsOL.getContext('2d');
-  ctx.fillStyle = "rgb(255, 127, 0)";
-  ctx.fillRect (0, 0, 100, 500);
 
   //
   var cvModules = [
@@ -53,10 +48,14 @@ window.addEventListener("load", function() {
     new cm.Canny({minVal: 80, maxVal: 20,}, false),
   ]
 
-  window.vp = new VideoPlayer(VIDEO_FILE, cvs, cvsOL, cvModules);
-  window.vp.play();
-  window.vp.playing = true
+  const player = new vp.VideoPlayer(VIDEO_FILE, cvs, cvsOL, cvModules);
+
+  //vp.store.dispatch(vp.play())
 
   // ui
   moduleList.items = cvModules
+
+  //
+  window.store = vp.store
+  window.actions = vp.actions
 })
