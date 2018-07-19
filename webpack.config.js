@@ -47,6 +47,25 @@ module.exports = [
         {
           test: /\.node$/,
           loader: 'node-loader'
+        },
+        {
+          test: /\.scss/,
+          use: [
+            'style-loader',
+            {
+              loader: 'css-loader',
+              options: {
+                url: false,
+                importLoaders: 2
+              },
+            },
+            {
+              loader: 'sass-loader',
+              options: {
+                includePaths: ['./node_modules']
+              }
+            }
+          ]
         }
 
       ]

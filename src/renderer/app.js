@@ -4,8 +4,11 @@ import * as vp from './videoPlayer';
 import cm from './cvModules';
 import cv from 'opencv4nodejs';
 
+import {Button} from "@material/mwc-button";
+
 import test from './TEST';
 import myelem from './MyElement';
+import './app.scss';
 
 window.addEventListener("load", function() {
 
@@ -29,23 +32,19 @@ window.addEventListener("load", function() {
     new cm.MorphologyEx({kernel: new cv.Mat(15, 15, cv.CV_8U, 1), morphType: cv.MORPH_OPEN}, false),
     new cm.Sobel({}, false),
     new cm.Canny({minVal: 80, maxVal: 20,}, false),
-    /*
-    new cm.HoughLines({},enabled=false),
-    new cm.HoughLines2({},enabled=false),
-    new cm.HoughLinesP({},enabled=false),
-    new cm.HoughLinesP2({},enabled=false),
-    new cm.HoughCircles({},enabled=false),
-    new cm.BackgroundSubtractorMOG2({},enabled=false),
-    new cm.ConnectedComponentsWithStats({},enabled=false),
-    */
-    new cm.TrackerKCF({rect : [320,280,40,40]}, false),
-    new cm.Disp_TrackerKCF({}, false),
+    new cm.HoughLines({}, false),
+    new cm.HoughLines2({}, false),
+    new cm.HoughLinesP({}, false),
+    new cm.HoughLinesP2({}, false),
+    new cm.HoughCircles({}, false),
+    new cm.BackgroundSubtractorMOG2({}, false),
+    new cm.ConnectedComponentsWithStats({}, false),
+    new cm.TrackerKCF({rect : [260,200,40,80]}, false),
+    new cm.Disp_TrackerKCF({fillStyle:"rgba(255, 127, 0, 0.5)"}, false),
 
     new cm.Diff({gain: 8}, false),
     new cm.LineScannerX({x: 175, width: 1, length: 800,}, false),
     new cm.LineScannerY({}, false),
-    new cm.Sobel({dx:0, dy:3, ksize: 5}, false),
-    new cm.Canny({minVal: 80, maxVal: 20,}, false),
   ]
 
   const player = new vp.VideoPlayer(VIDEO_FILE, cvs, cvsOL, cvModules);

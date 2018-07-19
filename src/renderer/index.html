@@ -13,11 +13,28 @@
     </div>
 
     <div>
-      <button id="btnReset" onclick="store.dispatch(actions.jump(0))">Reset</button>
-      <button id="btnBack" onclick="store.dispatch(actions.jump(store.getState().frameNo - 1))">-1</button>
-      <button id="btnPlay" onclick="store.dispatch(actions.play())">Play/Pause</button>
-      <button id="btnPlay" onclick="store.dispatch(actions.jump(store.getState().frameNo + 1))">+1</button>
-      <button id="btnPlay" onclick="console.log(store.getState())">Play</button>
+      <mwc-button id="btnReset" onclick="store.dispatch(actions.jump(0))">Reset</mwc-button>
+      <mwc-button id="btnBack" onclick="store.dispatch(actions.jump(store.getState().frameNo - 1))">-1</mwc-button>
+      <mwc-button id="btnPlay" onclick="store.dispatch(actions.play())">Play/Pause</mwc-button>
+      <mwc-button id="btnForward" onclick="store.dispatch(actions.jump(store.getState().frameNo + 1))">+1</mwc-button>
+      <mwc-button id="btnState" onclick="console.log(store.getState())">Status</mwc-button>
+    </div>
+    <div class="mdc-slider mdc-slider--discrete" tabindex="0" role="slider"
+         aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+         data-step="1" aria-label="Select Value">
+      <div class="mdc-slider__track-container">
+        <div class="mdc-slider__track"></div>
+        <!--div class="mdc-slider__track-marker-container"></div-->
+      </div>
+      <div class="mdc-slider__thumb-container">
+        <div class="mdc-slider__pin">
+          <span class="mdc-slider__pin-value-marker"></span>
+        </div>
+        <svg class="mdc-slider__thumb" width="21" height="21">
+          <circle cx="10.5" cy="10.5" r="7.875"></circle>
+        </svg>
+        <div class="mdc-slider__focus-ring"></div>
+      </div>
     </div>
 
     <div>

@@ -1,6 +1,9 @@
 import cv from 'opencv4nodejs'
 import { createStore } from 'redux'
 
+import {MDCSlider} from '@material/slider'
+
+
 // Initial state
 const initialState = {
   playing: false,
@@ -39,11 +42,20 @@ export const reducer = (state, action) => {
 export const store = createStore(reducer, initialState)
 
 // TEST listener
-const testListener = () => {console.log(store.getState())}
-store.subscribe(testListener)
+//const testListener = () => {console.log(store.getState())}
+//store.subscribe(testListener)
 
 export class VideoPlayer {
   constructor(videoPath, canvas, canvasOverlay, cvModules=[]) {
+    // slider
+    this.slider = new MDCSlider(document.querySelector('.mdc-slider'));
+    this.slider.listen('MDCSlider:input', () => {
+      console.log(`Value changed to ${this.slider.value}`)
+      if(store.getState().frameNo != this.slider.value) {
+        store.dispatch(actions.jump(this.slider.value))
+      }
+    });
+
     this.videoPath = videoPath
     this.canvas = canvas
     this.canvasOverlay = canvasOverlay
@@ -54,12 +66,17 @@ export class VideoPlayer {
     store.subscribe(this.render.bind(this))
     //store.subscribe(this.playLoop.bind(this))
 
+
     this.timestamp = performance.now()
   }
 
   set videoPath(videoPath) {
     this._videoPath = videoPath
     this._cap = new cv.VideoCapture(videoPath);
+    var fc = this._cap.get(cv.CAP_PROP_FRAME_COUNT)
+
+    this.slider.min = 0
+    this.slider.max = fc
   }
 
   render() {
@@ -107,12 +124,16 @@ export class VideoPlayer {
   }
 
   renderProgressBar() {
+    var fp = this._cap.get(cv.CAP_PROP_POS_FRAMES) - 1
+    var fc = this._cap.get(cv.CAP_PROP_FRAME_COUNT)
+
+    //this.slider.min = 0
+    //this.slider.max = fc
+    this.slider.value = fp
+
     //test
     this.canvasOverlay.height = this.canvas.height
     this.canvasOverlay.width = this.canvas.width
-
-    var fp = this._cap.get(cv.CAP_PROP_POS_FRAMES) - 1
-    var fc = this._cap.get(cv.CAP_PROP_FRAME_COUNT)
     var x = fp*this.canvas.width/fc
 
     var ctx = this.canvasOverlay.getContext('2d');
@@ -127,13 +148,21 @@ export class VideoPlayer {
   }
 
   renderStatus() {
-    var time2 = performance.now();
-    var timeInterval = time2-this.timestamp;
+    const state = store.getState()
+
+    const time2 = performance.now()
+    const timeInterval = time2-this.timestamp;
     this.timestamp = time2;
 
     labelFramerate.innerHTML = "FPS: " + (1000/timeInterval)
-    labelFrameNumber.innerHTML = "FN : " + this._cap.get(cv.CAP_PROP_POS_FRAMES )
-    labelMsec.innerHTML = "MSEC : " + this._cap.get(cv.CAP_PROP_POS_MSEC )
+    labelFrameNumber.innerHTML = "FN : " + this._cap.get(cv.CAP_PROP_POS_FRAMES ) + " : " + state.frameNo
+
+    const pos_ms = this._cap.get(cv.CAP_PROP_POS_MSEC )
+    const time = new Date(pos_ms)
+    var ms = ("000" + time.getMilliseconds()).slice(-3)
+    const sec = ("00" + time.getSeconds()).slice(-2)
+    const min = ("00" + time.getMinutes()).slice(-2)
+    labelMsec.innerHTML = "TIME: " + min + ":" + sec + "." + ms
   }
 
   /*
