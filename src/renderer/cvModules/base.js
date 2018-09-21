@@ -34,7 +34,9 @@ class CvDisplayModule extends CvModule {
     return this._enabled
   }
 }
-CvDisplayModule.defaultParams = {}
+CvDisplayModule.defaultParams = {
+  visible: true
+}
 
 // export
 module.exports = {

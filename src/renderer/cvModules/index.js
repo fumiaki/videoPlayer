@@ -2,6 +2,7 @@
 module.exports = Object.assign(
   {},
   require("./base"),
+  require("./imageSource"),
   require("./cvt"),
   require("./filter2D"),
   require("./blur"),
@@ -13,4 +14,5 @@ module.exports = Object.assign(
   require("./etc"),
 
   require("./mymodules"),
+  require("./log"),
 )

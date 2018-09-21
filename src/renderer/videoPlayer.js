@@ -1,8 +1,11 @@
 import cv from 'opencv4nodejs'
+import csv from 'csv'
+import path from 'path'
+import fs from 'fs'
 import { createStore } from 'redux'
-
 import {MDCSlider} from '@material/slider'
 
+import cm from './cvModules';
 
 // Initial state
 const initialState = {
@@ -47,8 +50,13 @@ export const store = createStore(reducer, initialState)
 
 export class VideoPlayer {
   constructor(videoPath, canvas, canvasOverlay, cvModules=[]) {
+    //redux stuff
+    this.store = store
+    this.actions = actions
+    this.reducer = reducer
+
     // slider
-    this.slider = new MDCSlider(document.querySelector('.mdc-slider'));
+    this.slider = new MDCSlider(document.querySelector('#sldMain'));
     this.slider.listen('MDCSlider:input', () => {
       console.log(`Value changed to ${this.slider.value}`)
       if(store.getState().frameNo != this.slider.value) {
@@ -60,6 +68,7 @@ export class VideoPlayer {
     this.canvas = canvas
     this.canvasOverlay = canvasOverlay
     this.cvModules = cvModules
+    this.cvModules.forEach(module => module.player = this)
     //this.updateFilterList(cvModules)
     //this.playing = false
 
@@ -82,7 +91,11 @@ export class VideoPlayer {
   render() {
     const state = store.getState()
 
-    //const currentFramePos = this._cap.get(cv.CAP_PROP_POS_FRAMES)
+    if(state.save) {
+      saveLogs()
+      return
+    }
+
     if(state.jump) {
       this._cap.set(cv.CAP_PROP_POS_FRAMES, state.frameNo) // too slow
     }
@@ -155,7 +168,7 @@ export class VideoPlayer {
     this.timestamp = time2;
 
     labelFramerate.innerHTML = "FPS: " + (1000/timeInterval)
-    labelFrameNumber.innerHTML = "FN : " + this._cap.get(cv.CAP_PROP_POS_FRAMES ) + " : " + state.frameNo
+    labelFrameNumber.innerHTML = "FN : " + this._cap.get(cv.CAP_PROP_POS_FRAMES ) + " : " + state.frameNo + " / " + this._cap.get(cv.CAP_PROP_FRAME_COUNT)
 
     const pos_ms = this._cap.get(cv.CAP_PROP_POS_MSEC )
     const time = new Date(pos_ms)
@@ -190,6 +203,44 @@ export class VideoPlayer {
     })
 
     return data;
+  }
+
+  //TODO;
+  saveLogs() {
+    console.log("saveLogs")
+    const logFile = "C:\\Users\\f.oshima3978\\Desktop\\tmp\\videoLog.csv"
+
+    const stringifier = csv.stringify({header: false})
+    const writableStream = fs.createWriteStream(logFile, {flags: 'w', encoding: 'utf-8'})
+    stringifier.pipe(writableStream)
+    //stringifier.pipe(process.stdout)
+
+    const logs = []
+    const labels = ["frameNo"]
+    var max = 0
+    this.cvModules.forEach(m => {
+      if(m instanceof cm.CvLogModule) {
+        //console.log(m.params.label + " : " + m.logData.length)
+        logs.push(m.logData)
+        labels.push(m.params.label)
+        max = m.logData.length > max ? m.logData.length : max
+      }
+    })
+    //console.log("max : " + max)
+    //console.log(logs)
+    stringifier.write(labels)
+
+    let rowData = []
+    for(let i = 0; i < max; i++) {
+      rowData[0] = i
+      logs.forEach((log,j) => {
+
+        rowData[j+1] = log[i] ? log[i] : rowData[j+1]
+      })
+      stringifier.write(rowData)
+      //console.log(rowData)
+    }
+    stringifier.destroy()
   }
 }
 

@@ -12,7 +12,9 @@ class GaussianBlur extends CvModule {
     return {
       img: data.img.gaussianBlur(
         this._ksizeObj,
-        this.params.sigmaX
+        this.params.sigmaX,
+        this.params.sigmaY,
+        this.params.borderType
       ),
       meta: data.meta
     }
@@ -21,8 +23,8 @@ class GaussianBlur extends CvModule {
 GaussianBlur.defaultParams = {
   ksize: [5,5],
   sigmaX:0,
-  //sigmaY:0,
-  //borderType:0
+  sigmaY:0,
+  borderType: cv.BORDER_REPLICATE
 }
 
 class MedianBlur extends CvModule {
