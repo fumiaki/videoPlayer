@@ -12,9 +12,9 @@ class BackgroundSubtractorMOG2 extends CvModule {
     this.bgSubtractor  = new cv.BackgroundSubtractorMOG2()
   }
 
-  process(data) {
-    var dst = this.bgSubtractor.apply(data.img)
-    return {img: dst, meta: data.meta}
+  process(ctx) {
+    var dst = this.bgSubtractor.apply(ctx.img)
+    return {img: dst}
   }
 }
 BackgroundSubtractorMOG2.defaultParams = {
@@ -36,22 +36,22 @@ BackgroundSubtractorMOG2.defaultParams = {
 }
 
 class ConnectedComponentsWithStats extends CvModule {
-  process(data) {
-    var result = data.img.connectedComponentsWithStats (
+  process(ctx) {
+    var result = ctx.img.connectedComponentsWithStats (
       this.params.connectivity,
       this.params.ltype
     )
 
-    var dst = this.draw({img: data.img, meta: result})
+    var dst = this.draw({...ctx, lastResult: result})
 
-    return {img: dst, meta: result}
+    return {img:dst, result}
   }
 
-  draw(data) {
+  draw(ctx) {
     //var dst = result.labels.convertTo(cv.CV_8U).cvtColor(cv.COLOR_GRAY2BGR)
-    var dst = data.img.copy().cvtColor(cv.COLOR_GRAY2BGR);
+    var dst = ctx.img.copy().cvtColor(cv.COLOR_GRAY2BGR);
 
-    var statsArr = data.meta.stats.getDataAsArray()
+    var statsArr = ctx.lastResult.stats.getDataAsArray()
     statsArr.forEach(stat => {
       //console.log(data)
       dst.drawRectangle (
@@ -62,7 +62,7 @@ class ConnectedComponentsWithStats extends CvModule {
         0// shift
       )
     })
-    var centroidsArr = data.meta.centroids.getDataAsArray()
+    var centroidsArr = ctx.lastResult.centroids.getDataAsArray()
     centroidsArr.forEach(centroid => {
       //console.log(data)
       dst.drawCircle (

@@ -9,16 +9,15 @@ class Filter2D extends CvModule {
     this._karnel = new cv.Mat(this.params.karnel, cv.CV_32FC1)
     this._anchor = new cv.Point(...this.params.anchor)
   }
-  process(data) {
+  process(ctx) {
     return {
-      img: data.img.filter2D(
+      img: ctx.img.filter2D(
         this.params.ddepth,
         this._karnel,
         this._anchor,
         this.params.delta,
         this.params.borderType
-      ),
-      meta: data.meta
+      )
     }
   }
 }

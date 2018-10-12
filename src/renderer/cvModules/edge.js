@@ -4,9 +4,9 @@ var base = require("./base");
 var CvModule = base.CvModule;
 
 class Sobel extends CvModule {
-  process(data) {
+  process(ctx) {
     return {
-      img: data.img.sobel(
+      img: ctx.img.sobel(
         this.params.ddepth,
         this.params.dx,
         this.params.dy,
@@ -16,8 +16,7 @@ class Sobel extends CvModule {
         this.params.borderType
       )
       .abs()
-      .convertTo(cv.CV_8U),
-      meta: data.meta
+      .convertTo(cv.CV_8U)
     }
   }
 }
@@ -32,13 +31,12 @@ Sobel.defaultParams = {
 }
 
 class Canny extends CvModule {
-  process(data) {
+  process(ctx) {
     return {
-      img: data.img.canny(
+      img: ctx.img.canny(
         this.params.minVal,
         this.params.maxVal
-      ),
-      meta: data.meta
+      )
     }
   }
 }

@@ -4,13 +4,12 @@ var base = require("./base");
 var CvModule = base.CvModule;
 
 class PyrUp extends CvModule {
-  process(data) {
+  process(ctx) {
     return {
-      img: data.img.pyrUp(
+      img: ctx.img.pyrUp(
         this.params.size,
         this.params.borderType
-      ),
-      meta: data.meta
+      )
     }
   }
 }
@@ -20,13 +19,12 @@ PyrUp.defaultParams = {
 }
 
 class PyrDown extends CvModule {
-  process(data) {
+  process(ctx) {
     return {
-      img: data.img.pyrDown(
+      img: ctx.img.pyrDown(
         this.params.size,
         this.params.borderType
-      ),
-      meta: data.meta
+      )
     }
   }
 }

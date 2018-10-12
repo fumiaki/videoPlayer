@@ -8,15 +8,14 @@ class GaussianBlur extends CvModule {
     super(params, enabled)
     this._ksizeObj = new cv.Size(this.params.ksize[0], this.params.ksize[1])
   }
-  process(data) {
+  process(ctx) {
     return {
-      img: data.img.gaussianBlur(
+      img: ctx.img.gaussianBlur(
         this._ksizeObj,
         this.params.sigmaX,
         this.params.sigmaY,
         this.params.borderType
-      ),
-      meta: data.meta
+      )
     }
   }
 }
@@ -28,12 +27,11 @@ GaussianBlur.defaultParams = {
 }
 
 class MedianBlur extends CvModule {
-  process(data) {
+  process(ctx) {
     return {
-      img: data.img.medianBlur(
+      img: ctx.img.medianBlur(
         this.params.ksize
-      ),
-      meta: data.meta
+      )
     }
   }
 }

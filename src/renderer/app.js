@@ -11,15 +11,9 @@ import './app.scss';
 
 window.addEventListener("load", function() {
 
-  var VIDEO_FILE = path.resolve('asset', 'vtest.avi')
-
-  var cvs = document.getElementById('main')
-  var cvsOL = document.getElementById('progress')
-
-  //
   var cvModules = [
-    //new cm.VideoSource({id: "test", uiContainer: "testCtl"}, true),
-    //new cm.LogSingleValue({label: "position", y: 100, scale: .2}, true),
+    new cm.VideoSource({id: "test", uiContainer: "testCtl"}, true),
+    new cm.ProgressBar({id:"prog02"}, true),
     //new cm.CameraSource({source:1, width:1200, height:960}, false),
     new cm.CvtColor({color:cm.CvtColor.RGB2GRAY}, true),
     new cm.GaussianBlur({ksize:[11,11]}, true),
@@ -35,10 +29,27 @@ window.addEventListener("load", function() {
     new cm.EdgeSubpixelX({x:200, y:200, width:200, height:100, step:2, bandWidth:1}, true),
     new cm.CalcAvarageX({}, true),
     new cm.LogSingleValue({label: "test", y: 200, scale: 1, threshold: 25, strokeStyle: "rgba(255, 0, 0, 0.5)"}, true),
-  ]
-  //
 
-  var XXcvModules = [
+    new cm.HoughLines({}, false),
+    new cm.HoughLines2({}, false),
+    new cm.HoughLinesP({}, false),
+    new cm.HoughLinesP2({}, false),
+    new cm.HoughCircles({}, false),
+    new cm.BackgroundSubtractorMOG2({}, false),
+    new cm.ConnectedComponentsWithStats({}, false),
+    new cm.TrackerKCF({rect : [260,200,40,80], fillStyle:"rgba(255, 127, 0, 0.5)"}, false),
+
+    new cm.Diff({gain: 8}, false),
+    new cm.LineScannerX({x: 175, width: 1, length: 800,}, false),
+    new cm.LineScannerY({}, false),
+    new cm.PrintContext({}, true),
+
+  ]
+
+  var xxcvModules = [
+    //new cm.VideoSource({id: "log180907_1", uiContainer: "testCtl",}, true),
+
+    new cm.ProgressBar({id:"prog02"}, true),
     new cm.CvtColor({color:cm.CvtColor.RGB2GRAY}, true),
     //new cm.PyrUp({}, false),
     //new cm.PyrDown({}, false),
@@ -203,25 +214,9 @@ window.addEventListener("load", function() {
     new cm.CalcThreshold({threshold: 120, low: 10, high: 40}, true),
     new cm.LogDiff({label: "No?_Weld", y: 400, scale: 1, threshold: 25, strokeStyle: "rgba(196, 64, 64, 0.5)"}, true),
     //
-
-    new cm.HoughLines({}, false),
-    new cm.HoughLines2({}, false),
-    new cm.HoughLinesP({}, false),
-    new cm.HoughLinesP2({}, false),
-    new cm.HoughCircles({}, false),
-    new cm.BackgroundSubtractorMOG2({}, false),
-    new cm.ConnectedComponentsWithStats({}, false),
-    new cm.TrackerKCF({rect : [260,200,40,80]}, false),
-    new cm.Disp_TrackerKCF({fillStyle:"rgba(255, 127, 0, 0.5)"}, false),
-
-    new cm.Diff({gain: 8}, false),
-    new cm.LineScannerX({x: 175, width: 1, length: 800,}, false),
-    new cm.LineScannerY({}, false),
   ]
 
-  window.player = new vp.VideoPlayer(VIDEO_FILE, cvs, cvsOL, cvModules);
-
-  //vp.store.dispatch(vp.play())
+  window.player = new vp.VideoPlayer(cvModules);
 
   // ui
   moduleList.items = cvModules

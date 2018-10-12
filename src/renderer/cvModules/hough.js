@@ -4,9 +4,9 @@ var base = require("./base");
 var CvModule = base.CvModule;
 var CvDisplayModule = base.CvDisplayModule;
 
-class HoughLines extends CvModule {
-  process(data) {
-    var lines = data.img.houghLines(
+class HoughLines2 extends CvModule {
+  process(ctx) {
+    var lines = ctx.img.houghLines(
       this.params.rho,
       this.params.theta,
       this.params.threshold,
@@ -16,14 +16,14 @@ class HoughLines extends CvModule {
       this.params.max_theta
     );
 
-    var dst = this.draw({img: data.img, meta: lines})
+    var dst = this.draw({...ctx, lastResult: lines})
 
-    return {img: dst, meta: lines}
+    return {img: dst, result: lines}
   }
 
-  draw(data) {
-    var dst = data.img.copy().cvtColor(cv.COLOR_GRAY2BGR);
-    data.meta.forEach(vec2 => {
+  draw(ctx) {
+    var dst = ctx.img.copy().cvtColor(cv.COLOR_GRAY2BGR);
+    ctx.lastResult.forEach(vec2 => {
       var rho = vec2.x
       var theta  = vec2.y
       var a = Math.cos(theta)
@@ -49,7 +49,7 @@ class HoughLines extends CvModule {
     return dst
   }
 }
-HoughLines.defaultParams = {
+HoughLines2.defaultParams = {
   rho: 1,
   theta: Math.PI/180.0,
   threshold: 100,
@@ -59,9 +59,9 @@ HoughLines.defaultParams = {
   max_theta: Math.PI
 }
 
-class HoughLines2 extends CvDisplayModule {
-  process(data) {
-    var lines = data.img.houghLines(
+class HoughLines extends CvDisplayModule {
+  process(ctx) {
+    var lines = ctx.img.houghLines(
       this.params.rho,
       this.params.theta,
       this.params.threshold,
@@ -71,20 +71,20 @@ class HoughLines2 extends CvDisplayModule {
       this.params.max_theta
     );
 
-    this.draw({img: data.img, meta: lines})
+    this.draw({...ctx, lastResult: lines})
 
-    return {img: data.img, meta: lines}
+    return {result: lines}
   }
 
-  draw(data) {
-    this.canvas.height = data.img.rows;
-    this.canvas.width = data.img.cols;
+  draw(ctx) {
+    this.canvas.height = ctx.img.rows;
+    this.canvas.width = ctx.img.cols;
 
-    var ctx = this.canvas.getContext("2d")
-    ctx.beginPath()
-    ctx.strokeStyle = "rgba(128, 0, 128, 0.8)"
-    ctx.lineWidth = "1"
-    data.meta.forEach(vec2 => {
+    var gc = this.canvas.getContext("2d")
+    gc.beginPath()
+    gc.strokeStyle = this.params.strokeStyle
+    gc.lineWidth = this.params.lineWidth
+    ctx.lastResult.forEach(vec2 => {
       var rho = vec2.x
       var theta  = vec2.y
       var a = Math.cos(theta)
@@ -98,25 +98,28 @@ class HoughLines2 extends CvDisplayModule {
       var x2 = x0 - l*(-b)
       var y2 = y0 - l*(a)
 
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
+      gc.moveTo(x1, y1);
+      gc.lineTo(x2, y2);
     })
-    ctx.stroke();
+    gc.stroke();
   }
 }
-HoughLines2.defaultParams = {
+HoughLines.defaultParams = {
   rho: 1,
   theta: Math.PI/180.0,
   threshold: 100,
   srn: 0.0,
   stn: 0.0,
   min_theta: 0.0,
-  max_theta: Math.PI
+  max_theta: Math.PI,
+
+  strokeStyle: "rgba(128, 0, 128, 0.8)",
+  lineWidth: "1"
 }
 
-class HoughLinesP extends CvModule {
-  process(data) {
-    var lines = data.img.houghLinesP(
+class HoughLinesP2 extends CvModule {
+  process(ctx) {
+    var lines = ctx.img.houghLinesP(
       this.params.rho,
       this.params.theta,
       this.params.threshold,
@@ -124,14 +127,14 @@ class HoughLinesP extends CvModule {
       this.params.maxLineGap
     );
 
-    var dst = this.draw({img: data.img, meta: lines})
+    var dst = this.draw({...ctx, lastResult: lines})
 
-    return {img: dst, meta: lines}
+    return {img: dst, result: lines}
   }
 
-  draw(data) {
-        var dst = data.img.copy().cvtColor(cv.COLOR_GRAY2BGR);
-        data.meta.forEach(vec4 => {
+  draw(ctx) {
+        var dst = ctx.img.copy().cvtColor(cv.COLOR_GRAY2BGR);
+        ctx.lastResult.forEach(vec4 => {
           var x1 = vec4.w
           var y1 = vec4.x
           var x2 = vec4.y
@@ -149,16 +152,17 @@ class HoughLinesP extends CvModule {
         return dst
   }
 }
-HoughLinesP.defaultParams = {
+HoughLinesP2.defaultParams = {
   rho: 1,
   theta: Math.PI/180.0,
   threshold: 50,
   minLineLength: 30,
   maxLineGap: 10
 }
-class HoughLinesP2 extends CvDisplayModule {
-  process(data) {
-    var lines = data.img.houghLinesP(
+
+class HoughLinesP extends CvDisplayModule {
+  process(ctx) {
+    var lines = ctx.img.houghLinesP(
       this.params.rho,
       this.params.theta,
       this.params.threshold,
@@ -166,37 +170,39 @@ class HoughLinesP2 extends CvDisplayModule {
       this.params.maxLineGap
     );
 
-    this.draw({img: data.img, meta: lines})
+    this.draw({...ctx, lastResult: lines})
 
-    return {img: data.img, meta: lines}
+    return {result: lines}
   }
 
-  draw(data) {
-    this.canvas.height = data.img.rows;
-    this.canvas.width = data.img.cols;
+  draw(ctx) {
+    this.canvas.height = ctx.img.rows;
+    this.canvas.width = ctx.img.cols;
 
-    var ctx = this.canvas.getContext("2d")
-    ctx.beginPath()
-    ctx.strokeStyle = "rgba(0, 0, 255, 0.8)"
-    ctx.lineWidth = "2"
-    data.meta.forEach(vec4 => {
+    var gc = this.canvas.getContext("2d")
+    gc.beginPath()
+    gc.strokeStyle = this.params.strokeStyle
+    gc.lineWidth = this.params.lineWidth
+    ctx.lastResult.forEach(vec4 => {
       var x1 = vec4.w
       var y1 = vec4.x
       var x2 = vec4.y
       var y2 = vec4.z
 
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
+      gc.moveTo(x1, y1);
+      gc.lineTo(x2, y2);
     })
-    ctx.stroke();
+    gc.stroke();
   }
 }
-HoughLinesP2.defaultParams = {
+HoughLinesP.defaultParams = {
   rho: 1,
   theta: Math.PI/180.0,
   threshold: 50,
   minLineLength: 30,
-  maxLineGap: 10
+  maxLineGap: 10,
+  strokeStyle: "rgba(0, 0, 255, 0.8)",
+  lineWidth: "2"
 }
 
 class HoughCircles extends CvModule {

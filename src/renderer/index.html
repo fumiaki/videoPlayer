@@ -7,46 +7,20 @@
   </head>
   <body>
     <div onclick="store.dispatch(actions.play())" style="position: relative">
-      <canvas id="main" style="position: absolute;z-index: -1"></canvas>
       <div id="imgDisplay" style="position: absolute;z-index: 0"></div>
-      <canvas id="progress" style="position: relative;z-index: 100"></canvas>
+      <canvas id="main" style="position: static;z-index: -1"></canvas>
     </div>
 
     <div id="testCtl">
     </div>
     <div>
-      <mwc-button id="btnReset" onclick="store.dispatch(actions.jump(0))">Reset</mwc-button>
-      <mwc-button id="btnBack10" onclick="store.dispatch(actions.jump(store.getState().frameNo - 10))">-10</mwc-button>
-      <mwc-button id="btnBack" onclick="store.dispatch(actions.jump(store.getState().frameNo - 1))">-1</mwc-button>
       <mwc-button id="btnPlay" onclick="store.dispatch(actions.play())">Play/Pause</mwc-button>
-      <mwc-button id="btnForward" onclick="store.dispatch(actions.jump(store.getState().frameNo + 1))">+1</mwc-button>
-      <mwc-button id="btnForward10" onclick="store.dispatch(actions.jump(store.getState().frameNo + 10))">+10</mwc-button>
       <mwc-button id="btnState" onclick="console.log(store.getState())">State</mwc-button>
       <mwc-button id="btnSaveLogs" onclick="console.log('AAA');player.saveLogs()">SaveLogs</mwc-button>
     </div>
-    <div id="sldMain" class="mdc-slider mdc-slider--discrete" tabindex="0" role="slider"
-         aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
-         data-step="1" aria-label="Select Value">
-      <div class="mdc-slider__track-container">
-        <div class="mdc-slider__track"></div>
-        <!--div class="mdc-slider__track-marker-container"></div-->
-      </div>
-      <div class="mdc-slider__thumb-container">
-        <div class="mdc-slider__pin">
-          <span class="mdc-slider__pin-value-marker"></span>
-        </div>
-        <svg class="mdc-slider__thumb" width="21" height="21">
-          <circle cx="10.5" cy="10.5" r="7.875"></circle>
-        </svg>
-        <div class="mdc-slider__focus-ring"></div>
-      </div>
-    </div>
 
     <div>
-      <div id="labelFramerate">FPS:000</div>
-      <div id="labelFrameNumber">FN :0</div>
-      <div id="labelMsec">MSEC :0</div>
-      <div id="labelFilterList">(no filter)</div>
+      <span id="labelFramerate">FPS:000</span>
       <cv-module-list id="moduleList"></cv-module-list>
     </div>
 

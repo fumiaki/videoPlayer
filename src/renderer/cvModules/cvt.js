@@ -4,10 +4,9 @@ var base = require("./base");
 var CvModule = base.CvModule;
 
 class CvtColor extends CvModule {
-  process(data) {
+  process(ctx) {
     return {
-      img: data.img.cvtColor(this.params.color),
-      meta: data.meta
+      img: ctx.img.cvtColor(this.params.color)
     }
   }
 }
@@ -20,14 +19,13 @@ CvtColor.defaultParams = {
 }
 
 class Threshold extends CvModule {
-  process(data) {
+  process(ctx) {
     return {
-      img: data.img.threshold(
+      img: ctx.img.threshold(
         this.params.thresh,
         this.params.maxVal,
         this.params.thresholdType
-      ),
-      meta: data.meta
+      )
     }
   }
 }
@@ -43,16 +41,15 @@ Threshold.defaultParams = {
 }
 
 class AdaptiveThreshold extends CvModule {
-  process(data) {
+  process(ctx) {
     return {
-      img: data.img.adaptiveThreshold(
+      img: ctx.img.adaptiveThreshold(
         this.params.maxVal,
         this.params.adaptiveMethod,
         this.params.thresholdType,
         this.params.blockSize,
         this.params.C
-      ),
-      meta: data.meta
+      )
     }
   }
 }

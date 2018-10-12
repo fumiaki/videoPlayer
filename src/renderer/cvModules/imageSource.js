@@ -4,6 +4,7 @@ const path = require("path")
 const {MDCSlider} = require('@material/slider')
 
 const CvModule = base.CvModule
+const CvDisplayModule = base.CvDisplayModule
 
 class VideoSource extends CvModule {
   constructor(params, enabled) {
@@ -31,13 +32,14 @@ class VideoSource extends CvModule {
     const id = this.params.id
     const controller = document.createElement("div")
     controller.innerHTML = `
-    <mwc-button id="${id}-btnONOFF">${id}</mwc-button>
-    <mwc-button id="${id}-btnReset">Reset</mwc-button>
-    <mwc-button id="${id}-btnBack10">-10</mwc-button>
-    <mwc-button id="${id}-btnBack">-1</mwc-button>
-    <mwc-button id="${id}-btnPlay">Play/Pause</mwc-button>
-    <mwc-button id="${id}-btnForward">+1</mwc-button>
-    <mwc-button id="${id}-btnForward10">+10</mwc-button>
+    <mwc-button id="${id}-btnONOFF" raised="">${id}</mwc-button>
+    <mwc-button id="${id}-btnReset" raised="">Reset</mwc-button>
+    <mwc-button id="${id}-btnBack10" raised="">-10</mwc-button>
+    <mwc-button id="${id}-btnBack" raised="">-1</mwc-button>
+    <mwc-button id="${id}-btnPlay" raised="">Play/Pause</mwc-button>
+    <mwc-button id="${id}-btnForward" raised="">+1</mwc-button>
+    <mwc-button id="${id}-btnForward10" raised="">+10</mwc-button>
+    <mwc-button id="${id}-btnPos" disabled="">xxx/xxx</mwc-button>
 
     <div id="${id}-sldProgress" class="mdc-slider mdc-slider--discrete" tabindex="0" role="slider"
          aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
@@ -87,6 +89,8 @@ class VideoSource extends CvModule {
       this.cap.set(cv.CAP_PROP_POS_FRAMES, pos + 10)
     })
 
+    // Status Display
+    this.lblFramePos = document.querySelector(`#${id}-btnPos`)
 
     // slider
     const slider = new MDCSlider(document.querySelector(`#${id}-sldProgress`));
@@ -99,7 +103,7 @@ class VideoSource extends CvModule {
 
   }
 
-  process(data) {
+  process(ctx) {
     if (this.playing) {
       this.pos = this.cap.get(cv.CAP_PROP_POS_FRAMES)
       this.img = this.cap.read()
@@ -111,16 +115,20 @@ class VideoSource extends CvModule {
       }
 
       this.slider.value = this.pos
+      this.lblFramePos.textContent = `${this.pos}/${this.frameCount}`
+
     }
 
     return {
       img: this.img,
-      meta: this.pos
+      meta: {
+        framePosition: this.pos,
+        frameCount: this.frameCount,
+      }
     }
   }
 }
 VideoSource.defaultParams = {
-  id: "video1",
   source: path.resolve('asset', 'vtest.avi'),
   uiContainer: undefined,
   uiElements: {
@@ -131,6 +139,46 @@ VideoSource.defaultParams = {
     back:"",
   }
 }
+
+
+class ProgressBar extends CvDisplayModule {
+  constructor(params, enabled) {
+    super(params, enabled)
+  }
+
+  process(ctx) {
+    this.draw(ctx)
+    return {}
+  }
+
+  draw(ctx) {
+    this.canvas.height = ctx.img.rows
+    this.canvas.width = ctx.img.cols
+
+    var fp = ctx.meta.framePosition
+    var fc = ctx.meta.frameCount
+    var x = fp * this.canvas.width / fc
+
+    var gc = this.canvas.getContext('2d')
+    gc.strokeStyle = this.params.strokeStyle
+    gc.fillStyle = this.params.fillStyle
+    gc.font = this.params.font
+
+    gc.fillText(fp, x+4, this.canvas.height-4)
+    gc.fillRect(0, this.canvas.height-24, x, this.canvas.height)
+  }
+}
+ProgressBar.defaultParams = {
+  ...CvDisplayModule.defaultParams,
+  y: 200,
+  scale: 2,
+  threshold: 35,
+  strokeStyle: "rgb(255, 127, 0, 0.5)",
+  fillStyle: "rgba(255, 255, 127, 0.5)",
+  lineWidth: "1",
+  font: "24px serif",
+}
+
 
 class CameraSource extends CvModule {
   constructor(params, enabled) {
@@ -163,5 +211,6 @@ CameraSource.defaultParams = {
 // export
 module.exports = {
   VideoSource: VideoSource,
+  ProgressBar: ProgressBar,
   CameraSource: CameraSource
 }

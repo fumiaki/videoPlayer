@@ -4,15 +4,14 @@ var base = require("./base");
 var CvModule = base.CvModule;
 
 class Dilate extends CvModule {
-  process(data) {
+  process(ctx) {
     return {
-      img: data.img.dilate(
+      img: ctx.img.dilate(
         this.params.kernel,
         this.params.anchor,
         this.params.iterations,
         this.params.borderType
-      ),
-      meta: data.meta
+      )
     }
   }
 }
@@ -24,15 +23,14 @@ Dilate.defaultParams = {
 }
 
 class Erode extends CvModule {
-  process(data) {
+  process(ctx) {
     return {
-      img: data.img.erode(
+      img: ctx.img.erode(
         this.params.kernel,
         this.params.anchor,
         this.params.iterations,
         this.params.borderType
-      ),
-      meta: data.meta
+      )
     }
   }
 }
@@ -44,16 +42,15 @@ Erode.defaultParams = {
 }
 
 class MorphologyEx extends CvModule {
-  process(data) {
+  process(ctx) {
     return {
-      img: data.img.morphologyEx(
+      img: ctx.img.morphologyEx(
         this.params.kernel,
         this.params.morphType,
         this.params.anchor,
         this.params.iterations,
         this.params.borderType
-      ),
-      meta: data.meta
+      )
     }
   }
 }
