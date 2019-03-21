@@ -15,26 +15,22 @@ window.addEventListener("load", function() {
     new cm.VideoSource({id: "test", uiContainer: "testCtl"}, true),
     new cm.ProgressBar({id:"prog02"}, true),
     //new cm.CameraSource({source:1, width:1200, height:960}, false),
+    new cm.PushImage({key:"key01"}, true),
+
     new cm.CvtColor({color:cm.CvtColor.RGB2GRAY}, true),
     new cm.GaussianBlur({ksize:[11,11]}, true),
-
-    new cm.EdgeSubpixelX({x:200, y:200, width:200, height:100, step:2, bandWidth:1, strokeStyle: "rgba(0, 0, 255, 0.5)"}, true),
-    new cm.CalcAvarageX({}, true),
-    new cm.LogSingleValue({label: "test", y: 200, scale: 1, threshold: 25, strokeStyle: "rgba(0, 0, 255, 0.5)"}, true),
-
     new cm.Threshold({thresh:64, maxVal:255}, false),
     new cm.Sobel({}, false),
     new cm.Canny({minVal: 80, maxVal: 20,}, false),
-
-    new cm.EdgeSubpixelX({x:200, y:200, width:200, height:100, step:2, bandWidth:1}, true),
-    new cm.CalcAvarageX({}, true),
-    new cm.LogSingleValue({label: "test", y: 200, scale: 1, threshold: 25, strokeStyle: "rgba(255, 0, 0, 0.5)"}, true),
-
     new cm.HoughLines({}, false),
-    new cm.HoughLines2({}, false),
     new cm.HoughLinesP({}, false),
-    new cm.HoughLinesP2({}, false),
     new cm.HoughCircles({}, false),
+
+
+    new cm.EdgeSubpixelX({x:0, y:100, width:400, height:200, step:2, bandWidth:1}, true),
+    new cm.CalcAvarageX({}, true),
+    new cm.LogSingleValue({label: "test", y: 500, scale: 0.5, threshold: 25, strokeStyle: "rgba(0, 0, 255, 0.5)"}, true),
+
     new cm.BackgroundSubtractorMOG2({}, false),
     new cm.ConnectedComponentsWithStats({}, false),
     new cm.TrackerKCF({rect : [260,200,40,80], fillStyle:"rgba(255, 127, 0, 0.5)"}, false),
@@ -42,7 +38,8 @@ window.addEventListener("load", function() {
     new cm.Diff({gain: 8}, false),
     new cm.LineScannerX({x: 175, width: 1, length: 800,}, false),
     new cm.LineScannerY({}, false),
-    new cm.PrintContext({}, true),
+    new cm.PopImage({key:"key01"}, true),
+    new cm.PrintContext({}, false),
 
   ]
 

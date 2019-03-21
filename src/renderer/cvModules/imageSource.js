@@ -18,6 +18,7 @@ class VideoSource extends CvModule {
 
     this.frameCount = cap.get(cv.CAP_PROP_FRAME_COUNT)
     this.cap = cap
+    this.jump = false
 
     if (this.params.uiContainer) {
       this._buildUi()
@@ -77,8 +78,10 @@ class VideoSource extends CvModule {
       const pos = this.cap.get(cv.CAP_PROP_POS_FRAMES)
       this.cap.set(cv.CAP_PROP_POS_FRAMES, pos - 1)
     })
-    document.querySelector(`#${id}-btnPlay`).addEventListener("click", () => {
+    document.querySelector(`#${id}-btnPlay`).addEventListener("click", (e) => {
       this.playing = !this.playing
+      console.log(e)
+      e.target.textContent = this.playing ? "PAUSE" : "PLAY"
     })
     document.querySelector(`#${id}-btnForward`).addEventListener("click", () => {
       const pos = this.cap.get(cv.CAP_PROP_POS_FRAMES)
@@ -98,15 +101,17 @@ class VideoSource extends CvModule {
     slider.max = this.frameCount
     slider.listen('MDCSlider:input', () => {
       this.cap.set(cv.CAP_PROP_POS_FRAMES, slider.value)
+      this.jump = true
     })
     this.slider = slider
 
   }
 
   process(ctx) {
-    if (this.playing) {
+    if (this.playing || this.jump) {
       this.pos = this.cap.get(cv.CAP_PROP_POS_FRAMES)
       this.img = this.cap.read()
+      this.jump = false
 
       if (this.img.empty) {
         this.cap.set(cv.CAP_PROP_POS_FRAMES, 0)

@@ -2,6 +2,7 @@
 module.exports = Object.assign(
   {},
   require("./base"),
+  require("./flowControll"),
   require("./imageSource"),
   require("./cvt"),
   require("./filter2D"),
